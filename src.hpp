@@ -138,9 +138,16 @@ struct Snake{
       return false; // Death by wall
     }
     
-    // Check self collision
+    // Check if food is eaten first
+    bool will_eat_food = map->is_food(new_x, new_y);
+    
+    // Check self collision (but not with the tail if we're going to eat food)
     for (size_t i = 0; i < body.size(); i++) {
       if (body[i].first == new_x && body[i].second == new_y) {
+        // If we're about to eat food, the tail will stay, so don't check collision with tail
+        if (will_eat_food && i == body.size() - 1) {
+          continue;
+        }
         return false; // Death by self collision
       }
     }
@@ -149,7 +156,7 @@ struct Snake{
     body.insert(body.begin(), {new_x, new_y});
     
     // Check if food is eaten
-    if (map->is_food(new_x, new_y)) {
+    if (will_eat_food) {
       map->eat_food(new_x, new_y);
       // Don't remove tail - snake grows
     } else {
